@@ -8,6 +8,8 @@ TagManager:
   - Door
   - Missile
   - Gate
+  - Coin
+  - Key
   layers:
   - Default
   - TransparentFX

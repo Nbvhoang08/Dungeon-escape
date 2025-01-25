@@ -16,7 +16,7 @@ public class Player : Singleton<Player>
     private float wallJumpingTime = 0.2f;
     private float wallJumpingCounter;
     private float wallJumpingDuration = 0.4f;
-    private Vector2 wallJumpingPower = new Vector2(8f, 12f);
+    [SerializeField]private Vector2 wallJumpingPower = new Vector2(8f, 12f);
     public bool IsDead;
     public bool IsDone;
     public int StarScore;
@@ -28,35 +28,48 @@ public class Player : Singleton<Player>
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float offset;
     private bool isTouchingScreen;
+    [SerializeField] private bool hasStarted = false; // Biến kiểm tra trạng thái bắt đầu
+
     void Start()
     {
         IsDead = false;
         IsDone = false;
+        hasStarted = false;
+        HasKey = false;
+        StarScore = 0;
     }
+
     private void Update()
     {
-        if(IsDead) return;
-        if(IsDone) return;
+        if (IsDead || IsDone) return;
 
-        anim.SetBool("OnGround",IsGrounded());
-        anim.SetBool("OnWall",isWallSliding);
+        anim.SetBool("OnGround", IsGrounded());
+        anim.SetBool("OnWall", isWallSliding);
         anim.SetBool("IsFalling", rb.velocity.y <= 0);
-
+        anim.SetBool("FirstClick", hasStarted);
 
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Began)
             {
+                if (!hasStarted)
+                {
+                    hasStarted = true;
+                    return;
+                }
+
                 isTouchingScreen = true;
 
                 if (IsGrounded())
                 {
                     rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+                    SoundController.Instance.PlayVFXSound(0);
                 }
                 else if (isWallSliding)
                 {
                     WallJump();
+                    SoundController.Instance.PlayVFXSound(0);
                 }
             }
             else if (touch.phase == TouchPhase.Ended)
@@ -76,7 +89,8 @@ public class Player : Singleton<Player>
 
     private void FixedUpdate()
     {
-        if(IsDead) return;
+        if (IsDead || IsDone || !hasStarted) return;
+
         if (!isWallJumping)
         {
             // Di chuyển tự động dựa trên hướng của Player
@@ -84,27 +98,40 @@ public class Player : Singleton<Player>
             rb.velocity = new Vector2(direction * speed, rb.velocity.y);
         }
     }
-    
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Kiểm tra va chạm với object có tag "Spike"
         if (collision.CompareTag("Spike") && !IsDead)
         {
             IsDead = true; // Đảm bảo chỉ chết một lần
+            SoundController.Instance.PlayVFXSound(2);
             Die();
         }
-        else if(collision.CompareTag("Spike") && !IsDone)
+        else if (collision.CompareTag("Gate") && !IsDone)
         {
             IsDone = true;
+            StartCoroutine(DoneGame());
+            LevelController.Instance.SaveGame();
+        }else if(collision.CompareTag("Coin"))
+        {
+            StarScore++;
+            Destroy(collision.gameObject);
+            SoundController.Instance.PlayVFXSound(1);
+        }else if(collision.CompareTag("Key"))
+        {
+            HasKey = true;
+            Destroy(collision.gameObject);
+            SoundController.Instance.PlayVFXSound(1);
         }
     }
 
     IEnumerator DoneGame()
     {
         yield return new WaitForSeconds(1f);
-        Time.timeScale =0;
+        Time.timeScale = 0;
+        UIController.Instance.OpenUI<Win>();
     }
-
 
     [Header("Death Settings")]
     [SerializeField] private GameObject deathEffectPrefab; // Prefab hiệu ứng chết
@@ -123,7 +150,6 @@ public class Player : Singleton<Player>
             Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
         }
 
-        // 3. Thu nhỏ scale sau 0.5 giây
         StartCoroutine(ShrinkAndDestroy());
     }
 
@@ -131,10 +157,10 @@ public class Player : Singleton<Player>
     {
         yield return new WaitForSeconds(1.6f);
         Time.timeScale = 0;
-        
+        UIController.Instance.OpenUI<Fail>();
         gameObject.SetActive(false); // Tắt object
-        
     }
+
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
@@ -150,6 +176,7 @@ public class Player : Singleton<Player>
         // Trả về true nếu bất kỳ vị trí nào chạm tường
         return isWalledCenter || isWalledTop || isWalledBottom;
     }
+
     private void OnDrawGizmos()
     {
         if (wallCheck != null)
@@ -167,7 +194,7 @@ public class Player : Singleton<Player>
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(wallCheck.position + Vector3.down * offset, 0.2f);
         }
-         // Vẽ GroundCheck
+        // Vẽ GroundCheck
         if (groundCheck != null)
         {
             Gizmos.color = Color.green;
@@ -190,6 +217,7 @@ public class Player : Singleton<Player>
 
     private void WallJump()
     {
+        
         if (isWallSliding)
         {
             isWallJumping = false;

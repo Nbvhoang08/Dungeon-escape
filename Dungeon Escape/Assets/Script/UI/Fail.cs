@@ -31,16 +31,19 @@ public class Fail : UIObject
     }
     public void RetryBtn()
     {
+        Time.timeScale = 1;
         StartCoroutine(Retry());
-        
+        Debug.Log("?");
     }
     IEnumerator Retry()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
          // Load lại scene hiện tại
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
         UIController.Instance.CloseUIDirectly<Fail>();
+
+      
     }
     public void HomeBtn()
     {
@@ -51,7 +54,7 @@ public class Fail : UIObject
     }
     IEnumerator LoadHome()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
         SceneManager.LoadScene("Home");
         UIController.Instance.CloseAll();
         UIController.Instance.OpenUI<Level>();

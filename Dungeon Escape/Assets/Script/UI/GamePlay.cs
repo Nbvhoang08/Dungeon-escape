@@ -18,8 +18,8 @@ public class GamePlay : UIObject
     {
         if (LevelName != null)
         {   
-            int levelNumber = SceneManager.GetActiveScene().buildIndex;
-            LevelName.text = $"Level: {levelNumber:D2}"; // Hiển thị với 2 chữ số, ví dụ: 01, 02
+            
+            LevelName.text = SceneManager.GetActiveScene().name; // Hiển thị với 2 chữ số, ví dụ: 01, 02
         }   
     }  
 }

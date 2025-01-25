@@ -44,7 +44,7 @@ public class Pause : UIObject
     }
     IEnumerator LoadHome()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
         SceneManager.LoadScene("Home");
         UIController.Instance.CloseAll();
         UIController.Instance.OpenUI<Level>();

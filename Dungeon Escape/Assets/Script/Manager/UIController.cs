@@ -15,7 +15,7 @@ public class UIController : Singleton<UIController>
     }
     void Start()
     {
-        // OpenUI<ChooseLV>();
+        OpenUI<Level>();
         // OpenUI<GamePlay>();
     }
     // Khởi tạo tất cả UI Canvas, đặt chúng ở trạng thái không hoạt động

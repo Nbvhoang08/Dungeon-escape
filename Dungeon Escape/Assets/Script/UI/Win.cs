@@ -56,7 +56,7 @@ public class Win : UIObject
     public void LoadNextScene()
     {
         int lvIndex =  SceneManager.GetActiveScene().buildIndex + 1; // Tăng chỉ số level
-        string nextSceneName = "LV" + lvIndex;
+        string nextSceneName = "Level 0" + lvIndex;
 
         // Kiểm tra xem scene tiếp theo có tồn tại hay không
         if (Application.CanStreamedLevelBeLoaded(nextSceneName))
@@ -86,7 +86,7 @@ public class Win : UIObject
     }
     IEnumerator LoadHome()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
         SceneManager.LoadScene("Home");
         UIController.Instance.CloseAll();
         UIController.Instance.OpenUI<Level>();

@@ -35,7 +35,7 @@ using UnityEngine;
 		{
 			if (_instance != null)
 			{
-				Debug.LogWarning("Already has instance of " + typeof(T));
+				//Debug.LogWarning("Already has instance of " + typeof(T));
 				GameObject.Destroy(this.gameObject);
 				return;
 			}
