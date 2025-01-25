@@ -37,6 +37,7 @@ public class Player : Singleton<Player>
         hasStarted = false;
         HasKey = false;
         StarScore = 0;
+        Application.targetFrameRate = 60;
     }
 
     private void Update()
